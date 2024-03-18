@@ -27,6 +27,7 @@ bool solve() {
             int sum = grid[i][j];
             q.push({ i,j });
             pos.push_back({ i,j });
+            visited[i][j] = true;
 
             while (!q.empty()) {
                 pii curr = q.front(); q.pop();
@@ -35,6 +36,7 @@ bool solve() {
                     int ny = curr.first + dy[d];
                     int nx = curr.second + dx[d];
                     if (!inrange(ny, nx) || visited[ny][nx]) continue;
+
                     int diff = abs(grid[ny][nx] - grid[curr.first][curr.second]);
                     if (L <= diff && diff <= R) {
                         q.push({ ny,nx });

@@ -16,26 +16,23 @@ int main() {
     on.reset();
     start = 0, finish = N - 1;
    
-    int test = 1;
-    for ( ; ; test++) {
-        if (on.test(finish)) {
-            on.set(finish, 0);
-        }
-
+    int test = 0;
+    while(K > 0) {
+        
         // 시작점 이동
         start = (start + 2 * N - 1) % (2 * N);
         finish = (finish + 2 * N - 1) % (2 * N);
-        if (on.test(finish)) {
-            on.set(finish, 0); 
-        }
-
+        if (on.test(finish)) on.set(finish, 0); 
+        
         //앞칸으로 전진 
         int i = (finish + 2 * N - 1) % (2 * N);
         for (int cnt = 0; cnt < N-1; cnt++) {
             if (on.test(i) == 0) continue;
             
+            // 다음 칸
             int j = (i + 1) % (2 * N);
-            if (safety[j] && on.test(j) == 0) {
+            if (safety[j] > 0 && on.test(j) == 0) {
+                on.set(i, 0);
                 on.set(j, 1);
                 safety[j]--;
                 if (!safety[j]) K--;
@@ -43,18 +40,17 @@ int main() {
             i = (i + 2 * N - 1) % (2 * N);
         }
         //finish에 사람 있으면 빼줘.
-        if (on.test(finish)) {
-            on.set(finish, 0); 
-        }
+        if (on.test(finish)) on.set(finish, 0);
 
         //start에 사람 올리기
-        if (safety[start]) {
+        if (on.test(start) == 0 && safety[start] > 0) {
             on.set(start, 1);
             safety[start]--;
             if (!safety[start]) K--;
         }
-        if (K <= 0) break;
-
+        //finish에 사람 있으면 빼줘.
+        if (on.test(finish)) on.set(finish, 0);
+        test++;
     }
     cout << test;
 

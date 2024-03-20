@@ -15,9 +15,9 @@ bool Inrange(int y, int x) {
     return 0 <= y && y < N && 0 <= x && x < N;
 }
 
-void RotatePart(int y,int x, int len) { // 한변 길이 
+void RotatePart(int y, int x, int len) { // 한변 길이 
     int sy[DIR_NUM] = { 0, 0,     len / 2, len / 2 };
-    int sx[DIR_NUM] = { 0, len/2, len/2,   0};
+    int sx[DIR_NUM] = { 0, len / 2, len / 2,   0 };
 
     for (int d = 0; d < DIR_NUM; d++) {
         int nd = (d + 1) % DIR_NUM;
@@ -35,20 +35,23 @@ void RotatePart(int y,int x, int len) { // 한변 길이
     }
 }
 
-void RotateAll(int level) {
-    int unit = pow(2, level);
-    for (int i = 0; i < N; i+= unit ) {
-        for (int j = 0; j < N; j += unit) {
-            RotatePart(i, j, unit);
-        }
-    }
-
+void CopyGrid() {
     //next에서 현재 grid로 옮기기 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             grid[i][j] = next_grid[i][j];
         }
     }
+}
+
+void RotateAll(int level) {
+    int unit = pow(2, level);
+    for (int i = 0; i < N; i += unit) {
+        for (int j = 0; j < N; j += unit) {
+            RotatePart(i, j, unit);
+        }
+    }
+    CopyGrid();
 }
 int dy[DIR_NUM] = { 0,0,1,-1 };
 int dx[DIR_NUM] = { 1,-1,0,0 };
@@ -60,17 +63,16 @@ void Melt() {
             for (int d = 0; d < DIR_NUM; d++) {
                 int ny = i + dy[d];
                 int nx = j + dx[d];
-                if (!Inrange(ny, nx) || !next_grid[ny][nx]) continue;
+                if (!Inrange(ny, nx) || !grid[ny][nx]) continue;
                 cnt++;
             }
-            if (cnt < 3)
-                grid[i][j]--;
+            next_grid[i][j] = (cnt < 3) ? grid[i][j] - 1 :  grid[i][j];
         }
     }
-
+    CopyGrid();
 }
 
-int DFS(int y,int x) {
+int DFS(int y, int x) {
     // 아 이거 어쩌지 아무튼 
     int ret = 1;
     for (int d = 0; d < DIR_NUM; d++) {
@@ -97,7 +99,7 @@ int main() {
 
     while (q--) {
         int l; cin >> l;
-        if(l) RotateAll(l);
+        if (l) RotateAll(l);
         Melt();
     }
 
@@ -109,7 +111,7 @@ int main() {
             total += grid[i][j];
             if (visited[i][j] || !grid[i][j]) continue;
             visited[i][j] = true;
-            max_cnt = max(max_cnt,DFS(i, j));
+            max_cnt = max(max_cnt, DFS(i, j));
         }
     }
     cout << total << "\n" << max_cnt;

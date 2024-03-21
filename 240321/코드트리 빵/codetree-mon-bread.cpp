@@ -125,7 +125,8 @@ int main() {
     for (int i = 0; i < M; i++) {
         int y, x;
         cin >> y >> x;
-        store[i] = { --y,--x };
+        store[i] = {y-1,x-1 };
+        player[i] = EMPTY;
     }
         
     while (true) {

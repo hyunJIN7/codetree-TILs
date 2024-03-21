@@ -36,35 +36,7 @@ bool CanGo(int y, int x) {
     return Inrange(y,x) && !visited[y][x] && grid[y][x] != 2 ;
         
 }
-void FindBaseCamp(int id) {
-    // pos에서 가장 가까운 camp찾기
-    memset(step, 0, sizeof(step));
-    memset(visited, 0, sizeof(visited));
 
-    queue<pii> q;
-    q.push(store[id]);
-    visited[store[id].first][store[id].second] = true;
-
-    while (!q.empty()) {
-        int y, x;
-        tie(y, x) = q.front(); q.pop();
-
-        for (int d = 0; d < DIR_NUM; d++) {
-            int ny = y + dy[d];
-            int nx = x + dx[d];
-            if (!Inrange(ny, nx) || visited[nx][ny] || grid[ny][nx] == 2)
-                continue;
-
-            if (grid[ny][nx] == 1) {
-                player[id] = { ny,nx };
-                grid[ny][nx] = 2;
-                return;
-            }
-            visited[ny][nx] = true;
-            q.push({ ny,nx });
-        }
-    }
-}
 void BFS(pii &pos) {
     memset(step, 0, sizeof(step));
     memset(visited, 0, sizeof(visited));
@@ -116,9 +88,23 @@ void Simulate() {
     }
 
     // step2 . 베이스 캠프 배정
-    if (curr_t < M) {
-        FindBaseCamp(curr_t);
+    if (curr_t >= M) return;
+    BFS(store[curr_t]);
+
+    int min_dis = 987654321;
+    int miny, minx;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (visited[i][j] && grid[i][j] == 1 && step[i][j] < min_dis) {
+                min_dis = step[i][j];
+                miny = i, minx = j;
+            }
+
+        }
     }
+    player[curr_t] = { miny,minx };
+    grid[miny][minx] = 2;
+
 }
 
 bool End() {

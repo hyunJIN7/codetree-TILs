@@ -33,11 +33,11 @@ bool Inrange(int y, int x) {
 }
 
 bool CanGo(int y, int x) {
-    return Inrange(y,x) && !visited[y][x] && grid[y][x] != 2 ;
-        
+    return Inrange(y, x) && 
+        !visited[y][x] && grid[y][x] != 2;
 }
 
-void BFS(pii &pos) {
+void BFS(pii& pos) {
     memset(step, 0, sizeof(step));
     memset(visited, 0, sizeof(visited));
 
@@ -48,7 +48,7 @@ void BFS(pii &pos) {
     while (!q.empty()) {
         int cy, cx;
         tie(cy, cx) = q.front(); q.pop();
-        
+
         for (int d = 0; d < DIR_NUM; d++) {
             int ny = cy + dy[d], nx = cx + dx[d];
             if (CanGo(ny, nx)) {
@@ -65,11 +65,11 @@ void Simulate() {
     //step1 이동
     for (int i = 0; i < M; i++) {
         //단 도착안했고,엠티아니고 그런 플레이어만 
-        if (player[i] == EMPTY || player[i] == store[i]) continue;
-        
-        
+        if (player[i] == EMPTY || player[i] == store[i]) 
+            continue;
+
         BFS(store[i]);
-        
+
         //주변 돌며 이동할 위치 찾기 
 
         int min_step = 987654321;
@@ -78,13 +78,21 @@ void Simulate() {
         for (int d = 0; d < DIR_NUM; d++) {
             int ny = player[i].first + dy[d];
             int nx = player[i].second + dx[d];
-            if (Inrange(ny,nx) && visited[ny][nx] && min_step > step[ny][nx]) {
+            if (Inrange(ny, nx) && visited[ny][nx] && min_step > step[ny][nx]) {
                 min_step = step[ny][nx];
                 miny = ny, minx = nx;
             }
         }
         player[i] = { miny, minx };
-        if (player[i] == store[i]) grid[miny][minx] = 2;
+        //if (player[i] == store[i]) grid[miny][minx] = 2;
+    }
+
+    for (int i = 0; i < M; i++) {
+        if (player[i] == store[i]) {
+            int px, py;
+            tie(px, py) = player[i];
+            grid[px][py] = 2;
+        }
     }
 
     // step2 . 베이스 캠프 배정
@@ -125,12 +133,12 @@ int main() {
     for (int i = 0; i < M; i++) {
         int y, x;
         cin >> y >> x;
-        store[i] = {y-1,x-1 };
+        store[i] = { y - 1,x - 1 };
         player[i] = EMPTY;
     }
-        
+
     while (true) {
-        
+
         Simulate();
         curr_t++;
         if (End()) break;

@@ -1,114 +1,154 @@
 #include <iostream>
 #include <tuple>
 #include <queue>
+#include <climits>
+#include <cstring>
 
 #define MAX_N 15
 #define MAX_M 30
 #define DIR_NUM 4
+#define EMPTY make_pair(-1,-1)
+
 using namespace std;
 typedef pair<int, int> pii;
 
 int N, M;
-int remain;
 
-int grid[MAX_N][MAX_N];
-bool on[MAX_N][MAX_N];
+int grid[MAX_N][MAX_N]; //0빈칸,1베켐,2는 못가
 
-pii store[MAX_M + 1], player[MAX_M + 1];
+pii player[MAX_M];
+pii store[MAX_M];
 
-int dy[] = { -1,0,0,1 };
-int dx[] = { 0,-1,1,0 };
+int curr_t = 0;
+
+// 문제에서의 우선순위인 상좌우하 순으로 적어줍니다.
+int dx[DIR_NUM] = { -1,  0, 0, 1 };
+int dy[DIR_NUM] = { 0, -1, 1, 0 };
+
+int step[MAX_N][MAX_N];      // 최단거리 결과 기록
+bool visited[MAX_N][MAX_N];  // 방문 여부 표시
 
 bool Inrange(int y, int x) {
     return 0 <= y && y < N && 0 <= x && x < N;
 }
 
+bool CanGo(int y, int x) {
+    return Inrange(y,x) && !visited[y][x] && grid[y][x] != 2 ;
+        
+}
 void FindBaseCamp(int id) {
-    bool visited[MAX_N][MAX_N] = { 0, };
+    // pos에서 가장 가까운 camp찾기
+    memset(step, 0, sizeof(step));
+    memset(visited, 0, sizeof(visited));
+
     queue<pii> q;
     q.push(store[id]);
     visited[store[id].first][store[id].second] = true;
+
     while (!q.empty()) {
-        int cy, cx;
-        tie(cy, cx) = q.front();
-        q.pop();
+        int y, x;
+        tie(y, x) = q.front(); q.pop();
 
         for (int d = 0; d < DIR_NUM; d++) {
-            int ny = cy + dy[d];
-            int nx = cx + dx[d];
-            if (!Inrange(ny, nx) || visited[ny][nx] || on[ny][nx]) continue;
+            int ny = y + dy[d];
+            int nx = x + dx[d];
+            if (!Inrange(ny, nx) || visited[nx][ny] || grid[ny][nx] == 2)
+                continue;
 
-            if (grid[ny][nx]) {
-                on[ny][nx] = true;
+            if (grid[ny][nx] == 1) {
                 player[id] = { ny,nx };
+                grid[ny][nx] = 2;
                 return;
             }
-            q.push({ ny,nx });
             visited[ny][nx] = true;
+            q.push({ ny,nx });
+        }
+    }
+}
+void BFS(pii &pos) {
+    memset(step, 0, sizeof(step));
+    memset(visited, 0, sizeof(visited));
+
+    queue<pii> q;
+    q.push(pos);
+    visited[pos.first][pos.second] = true;
+
+    while (!q.empty()) {
+        int cy, cx;
+        tie(cy, cx) = q.front(); q.pop();
+        
+        for (int d = 0; d < DIR_NUM; d++) {
+            int ny = cy + dy[d], nx = cx + dx[d];
+            if (CanGo(ny, nx)) {
+                step[ny][nx] = step[cy][cx] + 1;
+                visited[ny][nx] = true;
+                q.push({ ny,nx });
+            }
+
         }
     }
 }
 
-int getDistance(pii a, pii b) {
-    return abs(a.first - b.first) + abs(a.second - b.second);
-}
+void Simulate() {
+    //step1 이동
+    for (int i = 0; i < M; i++) {
+        //단 도착안했고,엠티아니고 그런 플레이어만 
+        if (player[i] == EMPTY || player[i] == store[i]) continue;
+        
+        
+        BFS(store[i]);
+        
+        //주변 돌며 이동할 위치 찾기 
 
-void Move(int id) {
-    // 이건 도착 안한 것만 호출됨.
-    //현위치에서 편의점과 가까워지는 곳으로 
-    int y, x;
-    tie(y, x) = player[id];
-    int min_dis = getDistance(player[id], store[id]);
-    for (int d = 0; d < DIR_NUM; d++) {
-        int ny = player[id].first + dy[d];
-        int nx = player[id].second + dx[d];
+        int min_step = 987654321;
+        int miny, minx;
 
-        if (!Inrange(ny, nx) || on[ny][nx]) continue;
-        int dis = getDistance(store[id], { ny,nx });
-        if (dis < min_dis) {
-            min_dis = dis;
-            y = ny, x = nx;
+        for (int d = 0; d < DIR_NUM; d++) {
+            int ny = player[i].first + dy[d];
+            int nx = player[i].second + dx[d];
+            if (Inrange(ny,nx) && visited[ny][nx] && min_step > step[ny][nx]) {
+                min_step = step[ny][nx];
+                miny = ny, minx = nx;
+            }
         }
+        player[i] = { miny, minx };
+        if (player[i] == store[i]) grid[miny][minx] = 2;
     }
 
-    //마지막에 이동하고 편의점이랑 같은 곳이면 remain--하고 
-    player[id] = { y,x };
-    if (player[id] == store[id]) {
-        //도착한 상태라면
-        on[y][x] = true;
-        remain--;
+    // step2 . 베이스 캠프 배정
+    if (curr_t < M) {
+        FindBaseCamp(curr_t);
     }
 }
 
+bool End() {
+    for (int i = M; i >= 0; i--) {
+        if (player[i] != store[i]) return false;
+    }
+    return true;
+}
 int main() {
-    ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0); cin.tie(0);
     cin >> N >> M;
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             cin >> grid[i][j];
         }
     }
-    for (int i = 1; i <= M; i++) {
-        cin >> store[i].first >> store[i].second;
-        store[i].first--;
-        store[i].second--;
-    }
-    remain = M;
 
-    int t = 0;
-    while (remain) {
-        //베켐 선정
-        
-        //player 전진 
-        for (int i = 1; i <= min(t, M); i++) {
-            if (player[i] == store[i]) continue;
-            Move(i);
-        }
-        t++;
-        if (t <= M) {
-            FindBaseCamp(t);
-        }  
+    for (int i = 0; i < M; i++) {
+        int y, x;
+        cin >> y >> x;
+        store[i] = { --y,--x };
     }
-    cout << t;
+        
+    while (true) {
+        
+        Simulate();
+        curr_t++;
+        if (End()) break;
+    }
+    cout << curr_t;
+
     return 0;
 }

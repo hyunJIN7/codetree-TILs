@@ -98,13 +98,13 @@ int main() {
     int t = 0;
     while (remain) {
         //베켐 선정
-        t++;
+        
         //player 전진 
         for (int i = 1; i <= min(t, M); i++) {
             if (player[i] == store[i]) continue;
             Move(i);
         }
-
+        t++;
         if (t <= M) {
             FindBaseCamp(t);
         }  

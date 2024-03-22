@@ -14,6 +14,16 @@ void Down(int level, int curr_grid[MAX_N][MAX_N]);
 void Left(int level, int curr_grid[MAX_N][MAX_N]);
 void Right(int level, int curr_grid[MAX_N][MAX_N]);
 
+
+
+void FindMaxNum(int(*grid)[MAX_N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            ans = max(ans, grid[i][j]);
+        }
+    }
+}
+
 void Up(int level, int curr_grid[MAX_N][MAX_N]) {
     int next_grid[MAX_N][MAX_N] = { 0, };
     for (int j = 0; j < N; j++) {
@@ -35,12 +45,11 @@ void Up(int level, int curr_grid[MAX_N][MAX_N]) {
         }
         if (num) next_grid[idx][j] = num;
     }
+
+
+
     if (level == MAX_LEVEL) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                ans = max(ans, next_grid[i][j]);
-            }
-        }
+        FindMaxNum(next_grid);
         return;
     }
 
@@ -72,11 +81,7 @@ void Down(int level, int curr_grid[MAX_N][MAX_N]) {
         if (num) next_grid[idx--][j] = num;
     }
     if (level == MAX_LEVEL) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                ans = max(ans, next_grid[i][j]);
-            }
-        }
+        FindMaxNum(next_grid);
         return;
     }
 
@@ -84,7 +89,7 @@ void Down(int level, int curr_grid[MAX_N][MAX_N]) {
     Down(level + 1, next_grid);
     Left(level + 1, next_grid);
     Right(level + 1, next_grid);
-  
+
 
 }
 void Left(int level, int curr_grid[MAX_N][MAX_N]) {
@@ -109,11 +114,7 @@ void Left(int level, int curr_grid[MAX_N][MAX_N]) {
         if (num) next_grid[i][idx] = num;
     }
     if (level == MAX_LEVEL) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                ans = max(ans, next_grid[i][j]);
-            }
-        }
+        FindMaxNum(next_grid);
         return;
     }
 
@@ -121,7 +122,7 @@ void Left(int level, int curr_grid[MAX_N][MAX_N]) {
     Down(level + 1, next_grid);
     Left(level + 1, next_grid);
     Right(level + 1, next_grid);
-    
+
 }
 void Right(int level, int curr_grid[MAX_N][MAX_N]) {
     int next_grid[MAX_N][MAX_N] = { 0, };
@@ -147,11 +148,7 @@ void Right(int level, int curr_grid[MAX_N][MAX_N]) {
     }
 
     if (level == MAX_LEVEL) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                ans = max(ans, next_grid[i][j]);
-            }
-        }
+        FindMaxNum(next_grid);
         return;
     }
 
@@ -159,7 +156,6 @@ void Right(int level, int curr_grid[MAX_N][MAX_N]) {
     Down(level + 1, next_grid);
     Left(level + 1, next_grid);
     Right(level + 1, next_grid);
-
 }
 
 

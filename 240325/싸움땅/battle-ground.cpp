@@ -100,19 +100,15 @@ void Simulate() {
         grid_player[y][x] = 0;
         player[i].UpdatePos(ny, nx, dir);
 
-        //y = ny, x = nx;
         if (grid_player[ny][nx]) {
             //옮겨간 곳에 사람 있음
-            
             Fight(ny, nx, i);
-
+            continue;
         }
-        else if (grid_gun[ny][nx].size()) {
-            //총만 바꾼다.
+        else if (grid_gun[ny][nx].size()) { //총만 바꾼다.
             ChangeGun(ny,nx,i);
-            grid_player[ny][nx] = i;
         }
-        else grid_player[ny][nx] = i;
+        grid_player[ny][nx] = i;
 
     }
 }
@@ -130,7 +126,8 @@ int main() {
     for (int i = 1; i <= M; i++) {
         int y, x, d, s;
         cin >> y >> x >> d >> s;
-        player[i] = { y-1, x-1, d, s ,0};
+        player[i] = { --y, --x, d, s ,0};
+        grid_player[y][x] = i;
     }
 
     while (K--) {

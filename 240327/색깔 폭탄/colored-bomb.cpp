@@ -19,13 +19,18 @@ bool visited[MAX_N][MAX_N];
 int dy[DIR_NUM] = { 0,-1,0,1 };
 int dx[DIR_NUM] = { 1,0,-1,0 };
 
-vector<pii> max_bomb;
+vector<pii> max_bomb, red_pos;
 int max_red = 0;
 
 int score = 0;
 
 bool Inrange(int y, int x) {
     return 0 <= y && y < N && 0 <= x && x < N;
+}
+
+void ResetRedVisit() {
+    for (pii p : red_pos)
+        visited[p.first][p.second] = false;
 }
 
 void FindBomb() {
@@ -37,8 +42,7 @@ void FindBomb() {
         for (int j = 0; j < N; j++) {
             if (visited[i][j] || grid[i][j] <= 0) 
                 continue;
-            memset(visited, 0, sizeof(visited));
-
+            ResetRedVisit();
             vector<pii> block;
             int red_cnt = 0;
 
@@ -57,8 +61,7 @@ void FindBomb() {
                     if (!Inrange(ny, nx) || visited[ny][nx]) 
                         continue;
                     if (grid[ny][nx] == color || grid[ny][nx] == RED) {
-                        if (grid[ny][nx] == RED) 
-                            red_cnt++;
+                        if (grid[ny][nx] == RED) red_cnt++;
                         q.push({ ny,nx });
                         block.push_back({ ny,nx });
                         visited[ny][nx] = true;
@@ -84,9 +87,8 @@ void FindBomb() {
 }
 
 void RemoveBomb() {
-    for (pii p : max_bomb) {
+    for (pii p : max_bomb) 
         grid[p.first][p.second] = EMPTY;
-    }
     max_red = 0;
     max_bomb.clear();
 }
@@ -95,15 +97,18 @@ void Gravity() {
     for (int i = 0; i < N; i++)
         for (int j = 0; j < N; j++)
             next_grid[i][j] = EMPTY;
+
     for (int j = 0; j < N; j++) {
         int idx = N - 1;
         for (int i = N - 1; i >= 0; i--) {
-            if (grid[i][j] == EMPTY) continue;
             if (grid[i][j] == STONE) {
-                idx = i - 1;//이거 위부터 넣을 수 있으니
-                continue;
+                next_grid[i][j] = STONE;
+                idx = i - 1;
             }
-            next_grid[idx--][j] = grid[i][j];
+            else if (grid[i][j] >= 0) {
+                next_grid[idx--][j] = grid[i][j];
+            }
+            
         }
     }
 
@@ -115,7 +120,7 @@ void Gravity() {
 void Rotate() {
     for (int i = 0; i < N; i++) 
         for (int j = 0; j < N; j++) 
-            next_grid[j][N-1-i] = grid[i][j];
+            next_grid[N-1-j][i] = grid[i][j];
 
         
     for (int i = 0; i < N; i++)
@@ -131,6 +136,14 @@ int main() {
         for (int j = 0; j < N; j++) 
             cin >> grid[i][j];
     while (true) {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (grid[i][j] == RED)
+                    red_pos.push_back({ i,j });
+            }
+        }
+   
+
         FindBomb();
         int c = max_bomb.size();
         if (c <= 1) break;

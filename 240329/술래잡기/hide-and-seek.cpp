@@ -29,15 +29,21 @@ bool InRange(int y, int x) {
 
 void MoveRunner(int y,int x) {
     if (grid[y][x].size() == 0) return;
+
+
+
     for (int e : grid[y][x]) {
         int d = runner[e].d;
         int ny = y + dy[d], nx = x + dx[d];
 
-        if (!InRange(ny, nx)) {
+        if(!InRange(ny, nx)) {
             d = (d + 2) % DIR_NUM;
             ny = y + dy[d], nx = x + dx[d];
         }
-        if (ny == cy && nx == cx) continue;//술래 있음
+        if ((ny == cy && nx == cx)) {
+            next_grid[y][x].push_back(e);
+            continue;
+        }
         //술래 없음. 이동
         next_grid[ny][nx].push_back(e);
         runner[e] = { ny,nx,d };
@@ -54,14 +60,23 @@ void MoveChaser(bool flip) {
     if (line == cnt) {
         cd = (cd + dt) % DIR_NUM;
         cnt = 0;
+        //뒤집었을 땐 홀수에서 cnt 감소
+        //false일땐 짝수일때 증가 
+        if (flip) {
+            if (cd % 2)line--;
+            if (cy == N - 1 && cx == 0)
+                line = N - 1;
+        }
+        else if (!(cd % 2))
+            line++;
     }
+
 }
 
 void Catch() {
-    
     for (int i = 0; i < 3; i++) {
         int ny = cy + dy[cd] * i, nx = cx + dx[cd] * i;
-        if (!InRange(ny,nx) ||  tree[ny][nx]) continue;
+        if (!InRange(ny,nx) ||  tree[ny][nx] || !grid[ny][nx].size()) continue;
         score += turn * grid[ny][nx].size();
         grid[ny][nx].clear();
     }
@@ -69,7 +84,7 @@ void Catch() {
 
 void Simulate() {
 
-    //step 1 도망자 도망 
+    ////step 1 도망자 도망 
     for (int i = -3; i <= 3; i++) {
         for (int j = -3; j <= 3; j++) {
             if (abs(i) + abs(j) > 3) continue;
@@ -91,7 +106,8 @@ void Simulate() {
     //step2 술래 출발 
     if (cy == N / 2 && cx == N / 2) {
         //중앙이라면
-        line = cnt = 0;
+        line = 1; 
+        cnt = 0;
         cd = 0;// 술래 방향 
         flip = false;
     }
@@ -99,17 +115,7 @@ void Simulate() {
         line = N-1;
         cnt = 0;
         cd = 2;
-        flip = false;
-    }
-
-    //뒤집었을 땐 홀수에서 cnt 감소
-    //false일땐 짝수일때 증가 
-    if (flip) {
-        if (cd % 2)line--;
-        if (cy == N - 1 && cx == 0) line = N - 1;
-    }
-    else { //원래 방향 
-        if (!(cd % 2)) line++;
+        flip = true;
     }
     MoveChaser(flip);
     Catch();

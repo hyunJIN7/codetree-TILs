@@ -13,9 +13,8 @@ int grid_time[MAX_N][MAX_N] = { 0, };
 
 // 방향만 적으면 안됨. 범위 밖이면 순환되기 때문에 
 int back_y[MAX_N][MAX_N], back_x[MAX_N][MAX_N];
-bool vis[MAX_N][MAX_N];
+bool vis[MAX_N][MAX_N], is_attack[MAX_N][MAX_N];
 
-bool play = true;
 int turn = 0;
 int dy[] = { 0,1,0,-1, -1,1,1,-1 }, dx[] = { 1,0,-1,0,1,1,-1,-1 };
 
@@ -39,6 +38,8 @@ void FindAttacker() {
             vec.push_back({ i,j,grid_time[i][j],grid_power[i][j] });
         }
     }
+    if (vec.size() <= 1) return;
+
     sort(vec.begin(), vec.end(), cmp);
     int y = vec[0].y, x = vec[0].x;
     vec[0].p += N + M;
@@ -64,7 +65,7 @@ bool LaserAttack() {
         for (int d = 0; d < DIR_NUM; d++) {
             int ny = (y + dy[d] + N) % N;
             int nx = (x + dx[d] + M) % M;
-            if (vis[ny][nx] || !grid_power[ny][nx]) continue;
+            if (vis[ny][nx] || grid_power[ny][nx] <= 0) continue;
             vis[ny][nx] = true;
             q.push({ ny,nx });
             back_y[ny][nx] = y;
@@ -74,17 +75,16 @@ bool LaserAttack() {
 
     if (!vis[ey][ex])return false;
 
-    memset(vis, 0, sizeof(vis));
-    vis[sy][sx] = vis[ey][ex] = true;
-    int attack_power = grid_power[sy][sx];
+    is_attack[sy][sx] = is_attack[ey][ex] = true;
+    int attack_power = vec[0].p;
     grid_power[ey][ex] -= attack_power;
     if (grid_power[ey][ex] < 0) grid_power[ey][ex] = 0;
     attack_power /= 2;
 
     while (1) {
         int ny = back_y[ey][ex], nx = back_x[ey][ex];
-        vis[ny][nx] = true;
         if (sy == ny && sx == nx) break;
+        is_attack[ny][nx] = true;
         grid_power[ny][nx] -= attack_power;
         if (grid_power[ny][nx] < 0) grid_power[ny][nx] = 0;
         ey = ny, ex = nx;
@@ -94,15 +94,18 @@ bool LaserAttack() {
 void BombAttack() {
     int sy = vec[0].y, sx = vec[0].x;
     int ey = vec.back().y, ex = vec.back().x;
-    vis[sy][sx] = vis[ey][ex] = true;
+    is_attack[sy][sx] = is_attack[ey][ex] = true;
 
-    int attack_power = grid_power[sy][sx];
+
+    int attack_power = vec[0].p;
     grid_power[ey][ex] -= attack_power;
     if (grid_power[ey][ex] < 0) grid_power[ey][ex] = 0;
     attack_power /= 2;
     for (int d = 0; d < 8; d++) {
         int ny = (ey + dy[d] + N) % N, nx = (ex + dx[d] + M) % M;
-        vis[ny][nx] = true;
+        if (ny == sy && nx == sx) continue;
+        if (grid_power[ny][nx] <= 0) continue;
+        is_attack[ny][nx] = true;
         grid_power[ny][nx] -= attack_power;
         if (grid_power[ny][nx] < 0) grid_power[ny][nx] = 0;
     }
@@ -111,7 +114,7 @@ void BombAttack() {
 void AddPower() {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
-            if (grid_power[i][j] > 0 && !vis[i][j]) {
+            if (grid_power[i][j] > 0 && !is_attack[i][j]) {
                 grid_power[i][j]++;
             }
         }
@@ -128,23 +131,23 @@ int main() {
     while (K--) {
         vec.clear();
         memset(vis, 0, sizeof(vis));
-        memset(back_y, 0, sizeof(back_y));
-        memset(back_x, 0, sizeof(back_x));
+        memset(is_attack, 0, sizeof(is_attack));
+        //memset(back_y, 0, sizeof(back_y));
+        //memset(back_x, 0, sizeof(back_x));
+    
         turn++;
 
         //step1
         FindAttacker();
         if (vec.size() <= 1) break;
 
-        if (!LaserAttack()) {
-            memset(vis, 0, sizeof(vis));
+        if (!LaserAttack()) 
             BombAttack();
-        }
-
+        
         //점수 추가 
         AddPower();
-
     }
+
     int ret = 0;
     for (int i = 0; i < N; i++)
         for (int j = 0; j < M; j++)

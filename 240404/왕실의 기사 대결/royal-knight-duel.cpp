@@ -35,7 +35,7 @@ bool TryMove(int id, int dir) {
 
         int sy = r[cid] + dy[dir], sx = c[cid] + dx[dir];
         int ey = sy + h[cid] - 1, ex = sx + w[cid] - 1;
-        nr[id] = sy, nc[id] = sx;
+        nr[cid] = sy, nc[cid] = sx;
 
         //모두 범위 내에 있어야하고 
         if (!InRange(sy,sx) ||!InRange(ey,ex))
@@ -58,6 +58,7 @@ bool TryMove(int id, int dir) {
             is_moved[i] = true;
         }
     }
+    dmg[id] = 0;
     return true;
 }
 
@@ -95,7 +96,7 @@ int main() {
         Move(id, dir);
     }
 
-    int ans = 0;
+    long long ans = 0;
     for (int i = 1; i <= N; i++) {
         if (k[i] > 0) {
             ans += bef_k[i] - k[i];

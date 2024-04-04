@@ -89,14 +89,14 @@ int main() {
         dir[id] = --d;
     }
 
-    int turn = 0;
+    int turn = 1;
     while (turn < 1000) {
-        turn++;
         if (Simulate()) {
             break;
         }
+        turn++;
     }
-    if (turn >= 1000) turn - 1;
+    if (turn >= 1000) turn = -1;
     cout << turn;
 
     return 0;

@@ -19,9 +19,6 @@ bool is_moved[MAX_N];
 
 int dy[4] = { -1,0,1,0 }, dx[4] = { 0,1,0,-1 };
 
-bool InRange(int y, int x) {
-    return 0 < y && y <= L && 0 < x && x <= L;
-}
 
 bool TryMove(int id, int dir) {
     memset(is_moved, 0, sizeof(is_moved));
@@ -33,13 +30,15 @@ bool TryMove(int id, int dir) {
     while (!q.empty()) {
         int cid = q.front(); q.pop();
 
+        //sy sx ~ ey ex
         int sy = r[cid] + dy[dir], sx = c[cid] + dx[dir];
         int ey = sy + h[cid] - 1, ex = sx + w[cid] - 1;
         nr[cid] = sy, nc[cid] = sx;
 
         //모두 범위 내에 있어야하고 
-        if (!InRange(sy,sx) ||!InRange(ey,ex))
+        if (sy < 1 || sx < 1 || L < ey || L < ex) 
             return false;
+
         //내부에 벽이 있으면 안된다.
         //내부 벽 찾으며 동시에 대미지 계산
         for (int i = sy; i <= ey; i++) {

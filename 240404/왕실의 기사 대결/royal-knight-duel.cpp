@@ -9,7 +9,7 @@
 using namespace std;
 
 int L, N;
-int grid[MAX_N][MAX_N];
+int grid[MAX_L][MAX_L];
 
 int r[MAX_N], c[MAX_N], h[MAX_N], w[MAX_N], k[MAX_N];
 int bef_k[MAX_N];
@@ -36,7 +36,7 @@ bool TryMove(int id, int dir) {
         nr[cid] = sy, nc[cid] = sx;
 
         //모두 범위 내에 있어야하고 
-        if (sy < 1 || sx < 1 || L < ey || L < ex) 
+        if (sy < 1 || sx < 1 || L < ey || L < ex)
             return false;
 
         //내부에 벽이 있으면 안된다.
@@ -82,8 +82,8 @@ int main() {
     cin >> L >> N >> Q;
     for (int i = 1; i <= L; i++)
         for (int j = 1; j <= L; j++)
-            cin >> grid[i][j];   
-            
+            cin >> grid[i][j];
+
     for (int i = 1; i <= N; i++) {
         cin >> r[i] >> c[i] >> h[i] >> w[i] >> k[i];
         bef_k[i] = k[i];

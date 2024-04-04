@@ -95,7 +95,7 @@ int main() {
         Move(id, dir);
     }
 
-    long long ans = 0;
+    int ans = 0;
     for (int i = 1; i <= N; i++) {
         if (k[i] > 0) {
             ans += bef_k[i] - k[i];

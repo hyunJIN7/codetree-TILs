@@ -35,9 +35,9 @@ int FindTarget() {
 
         for (int i = 0; i < 4; i++) {
             int ny = y + dy[i], nx = x + dx[i];
-            if (!InRange(ny, nx) || vis[ny][nx] || grid[ny][nx] >= level)
+            if (!InRange(ny, nx) || vis[ny][nx] || grid[ny][nx] > level)
                 continue;
-            if (grid[ny][nx]) {
+            if (0 < grid[ny][nx] && grid[ny][nx] < level) {
                 grid[ny][nx] = 0;
                 ry = ny, rx = nx;
                 return dis[y][x] + 1;

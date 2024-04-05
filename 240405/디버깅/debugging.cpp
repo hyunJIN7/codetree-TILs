@@ -10,7 +10,7 @@
 using namespace std;
 
 int N, H;
-bool grid[MAX_H][MAX_N];
+bool grid[MAX_H+1][MAX_N+1];
 vector<pair<int, int>> candi;
 int ans = 10;
 
@@ -19,7 +19,6 @@ bool InRange(int x) {
 }
 
 bool Verify() {
-
     for (int j = 0; j < N; j++) {
         int id = j;
         for (int i = 0; i < H; i++) {
@@ -35,24 +34,42 @@ bool Verify() {
     return true;
 }
 
-void FindMin(int id,int cnt) {
-    if (Verify()) {
+vector<int> list;
+
+void FindMin(int start,int cnt) {
+    if (cnt > ans) return;
+    if (Verify()) 
         ans = min(ans, cnt);
-    }
-    if (cnt > 3) return;
+    if (cnt > 3 || start == candi.size()) return;
 
-    for (int i = id; i < candi.size(); i++) {
-        int y, x;
-        tie(y, x) = candi[i];
+    FindMin(start + 1, cnt);
 
-        //선 겹침 
-        if (InRange(x - 1) && grid[y][x - 1]) continue;
-        if (InRange(x + 1) && grid[y][x + 1]) continue;
+    int y, x;
+    tie(y, x) = candi[start];
+    //선 겹침 
+    if (InRange(x - 1) && grid[y][x - 1]) return;
+    if (InRange(x + 1) && grid[y][x + 1]) return;
+    list.push_back(start);
+    grid[y][x] = true;
+    FindMin(start +1, cnt + 1);
+    list.pop_back();
+    grid[y][x] = false;
 
-        grid[y][x] = true;
-        FindMin(i +1, cnt + 1);
-        grid[y][x] = false;
-    }
+    //for (int i = start; i < candi.size(); i++) {
+    //    int y, x;
+    //    tie(y, x) = candi[i];
+
+    //    //선 겹침 
+    //    if (InRange(x - 1) && grid[y][x - 1]) continue;
+    //    if (InRange(x + 1) && grid[y][x + 1]) continue;
+
+    //    list.push_back(i);
+    //    grid[y][x] = true;
+    //    FindMin(i +1, cnt + 1);
+    //    list.pop_back();
+    //    grid[y][x] = false;
+    //   
+    //}
 }
 
 int main() {
@@ -65,12 +82,10 @@ int main() {
         grid[a - 1][b - 1] = true;
     }
 
-    for (int i = 0; i < H; i++) {
-        for (int j = 0; j < N; j++) {
-            if (grid[i][j]) continue;
-            candi.push_back({ i,j });
-        }
-    }
+    for (int i = 0; i < H; i++)
+        for (int j = 0; j < N; j++)
+            if (!grid[i][j]) 
+                candi.push_back({ i,j });
 
     FindMin(0, 0);
 

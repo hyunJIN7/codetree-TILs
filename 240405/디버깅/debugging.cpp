@@ -22,36 +22,31 @@ bool Verify() {
     for (int j = 0; j < N; j++) {
         int id = j;
         for (int i = 0; i < H; i++) {
-            if (grid[i][id]) {
-                id++;
-            }
-            else if (id && grid[i][id - 1]) {
-                id--;
-            }
+            if (grid[i][id]) id++;
+            else if (id && grid[i][id - 1]) id--;
         }
         if (id != j) return false;
     }
     return true;
 }
 
-
 void FindMin(int start,int cnt) {
     if (cnt > ans) return;
     if (Verify()) 
         ans = min(ans, cnt);
-    if (cnt > 3) return;
 
-    for (int i = start; i < candi.size(); i++) {
-        int y, x;
-        tie(y, x) = candi[i];
-        //선 겹침 
-        if (InRange(x - 1) && grid[y][x - 1]) continue;
-        if (InRange(x + 1) && grid[y][x + 1]) continue;
-        grid[y][x] = true;
-        FindMin(i +1, cnt + 1);
-        grid[y][x] = false;
-        if (cnt > ans || cnt > 3) break;
-    }
+    if (cnt > 3 || start == candi.size()) return;
+
+    FindMin(start + 1, cnt);
+
+    int y, x;
+    tie(y, x) = candi[start];
+    //선 겹침 
+    if (InRange(x - 1) && grid[y][x - 1]) return;
+    if (InRange(x + 1) && grid[y][x + 1]) return;
+    grid[y][x] = true;
+    FindMin(start + 1, cnt + 1);
+    grid[y][x] = false;
 }
 
 int main() {

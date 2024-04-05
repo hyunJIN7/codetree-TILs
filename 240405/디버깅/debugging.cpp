@@ -1,8 +1,5 @@
 #include <iostream>
-#include <algorithm>
-#include <climits>
-#include <vector>
-#include <tuple>
+
 
 #define MAX_H 30
 #define MAX_N 10
@@ -10,8 +7,8 @@
 using namespace std;
 
 int N, H;
-bool grid[MAX_H+1][MAX_N+1];
-vector<pair<int, int>> candi;
+bool grid[MAX_H + 1][MAX_N + 1];
+
 int ans = 10;
 
 bool InRange(int x) {
@@ -30,23 +27,30 @@ bool Verify() {
     return true;
 }
 
-void FindMin(int start,int cnt) {
-    if (cnt > ans) return;
-    if (Verify()) 
-        ans = min(ans, cnt);
 
-    if (cnt > 3 || start == candi.size()) return;
+bool CanSelect(int y, int x) {
+    if (grid[y][x]) return false;
+    //양옆 비었다.
+    if (InRange(x - 1) && grid[y][x - 1]) return false;
+    if (InRange(x + 1) && grid[y][x + 1]) return false;
+    return true;
+}
 
-    FindMin(start + 1, cnt);
 
-    int y, x;
-    tie(y, x) = candi[start];
-    //선 겹침 
-    if (InRange(x - 1) && grid[y][x - 1]) return;
-    if (InRange(x + 1) && grid[y][x + 1]) return;
-    grid[y][x] = true;
-    FindMin(start + 1, cnt + 1);
-    grid[y][x] = false;
+void FindMin(int r, int c, int cnt) {
+    if (cnt > 3 || cnt > ans) return;
+    for (int i = r; i < H; i++) {
+        int j = 0;
+        if (i == r) j = c; //c 보낼때 시작지점부터 보내야해!!!!!!!!!!!
+        for (; j < N; j++) {
+            if (!CanSelect(i, j)) continue;
+            grid[i][j] = true;
+            if (Verify()) ans = min(ans, cnt);
+            FindMin(i, j + 1,cnt+1);
+            grid[i][j] = false;
+
+        }
+    }
 }
 
 int main() {
@@ -58,13 +62,9 @@ int main() {
         cin >> a >> b;
         grid[a - 1][b - 1] = true;
     }
-
-    for (int i = 0; i < H; i++)
-        for (int j = 0; j < N; j++)
-            if (!grid[i][j]) 
-                candi.push_back({ i,j });
-
-    FindMin(0, 0);
+    //원본상태
+    if(Verify()) ans = min(ans,0);
+    FindMin(0,0,1);
 
     if (ans > 3) ans = -1;
     cout << ans;

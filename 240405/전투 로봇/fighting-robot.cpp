@@ -29,6 +29,10 @@ int FindTarget() {
     queue<pair<int, int> > q;
     q.push({ ry,rx });
     vis[ry][rx] = true;
+
+    int ret = 500;
+    int ay = N, ax = N;
+
     while (!q.empty()) {
         int y, x;
         tie(y, x) = q.front(); q.pop();
@@ -37,18 +41,31 @@ int FindTarget() {
             int ny = y + dy[i], nx = x + dx[i];
             if (!InRange(ny, nx) || vis[ny][nx] || grid[ny][nx] > level)
                 continue;
-            if (0 < grid[ny][nx] && grid[ny][nx] < level) {
-                grid[ny][nx] = 0;
-                ry = ny, rx = nx;
-                return dis[y][x] + 1;
+            if (dis[y][x] + 1 > ret) continue;
+            if (grid[ny][nx] && grid[ny][nx] < level) {
+                if (dis[y][x] + 1 < ret) {
+                    ret = dis[y][x] + 1;
+                    ay = ny, ax = nx;
+                }
+                else if (dis[y][x] + 1 == ret && make_pair(ny, nx) < make_pair(ay, ax)) {
+                    ay = ny, ax = nx;
+                }
+
             }
-                
+            //if (0 < grid[ny][nx] && grid[ny][nx] < level) {
+            //    grid[ny][nx] = 0;
+            //    ry = ny, rx = nx;
+            //    return dis[y][x] + 1;
+            //}
             vis[ny][nx] = true;
             dis[ny][nx] = dis[y][x] + 1;
             q.push({ ny,nx });
         }
     }
-    return -1;
+    if (ret == 500) return -1;
+    grid[ay][ax] = 0;
+    ry = ay, rx = ax;
+    return ret;
 }
 
 int main() {
@@ -69,7 +86,7 @@ int main() {
         int t = FindTarget();
         if (t == -1) break;
         ans += t;
-        
+
         if (++cnt == level) {
             level++;
             cnt = 0;

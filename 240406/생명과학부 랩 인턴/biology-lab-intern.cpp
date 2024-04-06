@@ -16,13 +16,14 @@ bool InRange(int y, int x) {
     return 0 <= y && y < H && 0 <= x && x < W;
 }
 
-pair<int, int> GetNextPos(int y, int x, int dis, int& d) {
+pair<int, int> GetNextPos(int y, int x, int id) {
+    int dis = v[id];
     while (dis--) {
-        if (!InRange(y + dy[d], x + dx[d])) {
-            d = (d % 2 == 1) ? d - 1 : d + 1;
+        if (!InRange(y + dy[dir[id]], x + dx[dir[id]])) {
+            dir[id] = (dir[id] % 2) ? dir[id] - 1 : dir[id] + 1;
         }
-        y += dy[d];
-        x += dx[d];
+        y += dy[dir[id]];
+        x += dx[dir[id]];
     }
     return { y,x };
 }
@@ -57,7 +58,7 @@ void Move() {
             int id = grid[i][j];
 
             int ny, nx;
-            tie(ny, nx) = GetNextPos(i, j, v[id], dir[id]);
+            tie(ny, nx) = GetNextPos(i, j, id);
 
             if (next_grid[ny][nx] > 0) {
                 // 다른 곰팡이 존재

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <tuple>
 
 #define MAX_N 100
 #define MAX_K 100000
@@ -11,8 +12,23 @@ int v[MAX_K + 1], dir[MAX_K + 1], s[MAX_K + 1];//속력,방향,크기
 
 int dy[4] = { -1,1,0,0 }, dx[4] = { 0,0,1,-1 };
 
+bool InRange(int y, int x) {
+    return 0 <= y && y < H && 0 <= x && x < W;
+}
+
+pair<int, int> GetNextPos(int y, int x, int dis, int& d) {
+    while (dis--) {
+        if (!InRange(y + dy[d], x + dx[d])) {
+            d = (d % 2 == 1) ? d - 1 : d + 1;
+        }
+        y += dy[d];
+        x += dx[d];
+    }
+    return { y,x };
+}
+
 int GetNextY(int y, int id, int &d) {
-    if (!!dy[d] || !v[id]) return y;
+    if (!dy[d]) return y;
     for (int i = 1; i <= v[id]; i++) {
         if (0 > y + dy[d] || H <= y + dy[d]) { //범위 밖이라면
             d = (d % 2 == 1) ? d - 1 : d + 1;
@@ -23,7 +39,7 @@ int GetNextY(int y, int id, int &d) {
 }
 
 int GetNextX(int x, int id, int& d) {
-    if (!!dx[d] || !v[id]) return x;
+    if (!dx[d]) return x;
     for (int i = 1; i <= v[id]; i++) {
         if (0 > x + dx[d] || W <= x + dx[d]) { //범위 밖이라면
             d = (d % 2==1) ? d - 1 : d + 1;
@@ -39,9 +55,9 @@ void Move() {
         for (int j = 0; j < W; j++) {
             if (!grid[i][j]) continue;
             int id = grid[i][j];
-            //방향은 원본 방향주고 범위 벗어나면 바꾸기
-            int ny = GetNextY(i, id, dir[id]);
-            int nx = GetNextX(j, id, dir[id]);
+
+            int ny, nx;
+            tie(ny, nx) = GetNextPos(i, j, v[id], dir[id]);
 
             if (next_grid[ny][nx] > 0) {
                 // 다른 곰팡이 존재
@@ -76,8 +92,6 @@ int main() {
                 //곰팡이 잡기 
                 ans += s[grid[i][j]];
                 grid[i][j] = 0;
-                //곰팡이 이동
-                //Move();
                 break;
             }
         }

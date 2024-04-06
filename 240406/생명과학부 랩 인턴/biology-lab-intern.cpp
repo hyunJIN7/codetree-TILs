@@ -11,28 +11,28 @@ int v[MAX_K + 1], dir[MAX_K + 1], s[MAX_K + 1];//속력,방향,크기
 
 int dy[4] = { -1,1,0,0 }, dx[4] = { 0,0,1,-1 };
 
-int GetNextY(int y, int id, int d) {
-    int ny = y + dy[d] * v[id];
-    if (ny < 0) { 
-        ny *= -1; 
-        dir[id] = (dir[id] % 2) ? dir[id] - 1 : dir[id] + 1;
-    }
-    if (ny >= H) {
-        ny = 2 * H - 2 - ny;
-        dir[id] = (dir[id] % 2) ? dir[id] - 1 : dir[id] + 1;
+int GetNextY(int y, int id, int &d) {
+    if (!dy[d]) return y;
+    int ny = y;
+    
+    for (int i = 1; i <= v[id]; i++) {
+        if (0 > ny + dy[d] || H < ny + dy[d]) { //범위 밖이라면
+            d = (d % 2) ? d - 1 : d + 1;
+        }
+        ny += dy[d];
     }
     return ny;
 }
 
-int GetNextX(int x, int id, int d) {
-    int nx = x + dx[d] * v[id];
-    if (nx < 0) {
-        nx *= -1;
-        dir[id] = (dir[id] % 2) ? dir[id] - 1 : dir[id] + 1;
-    }
-    if (nx >= W) {
-        nx = 2 * W - 2 - nx;
-        dir[id] = (dir[id] % 2) ? dir[id] - 1 : dir[id] + 1;
+int GetNextX(int x, int id, int& d) {
+    if (!dx[d]) return x;
+    int nx = x;
+    
+    for (int i = 1; i <= v[id]; i++) {
+        if (0 > nx + dx[d] || W < nx + dx[d]) { //범위 밖이라면
+            d = (d % 2) ? d - 1 : d + 1;
+        }
+        nx += dx[d];
     }
     return nx;
 }
@@ -43,10 +43,9 @@ void Move() {
         for (int j = 0; j < W; j++) {
             if (!grid[i][j]) continue;
             int id = grid[i][j];
-            int d = dir[id];
             //방향은 원본 방향주고 범위 벗어나면 바꾸기
-            int ny = GetNextY(i, id,d);
-            int nx = GetNextX(j, id,d);
+            int ny = GetNextY(i, id, dir[id]);
+            int nx = GetNextX(j, id, dir[id]);
 
             if (next_grid[ny][nx] > 0) {
                 // 다른 곰팡이 존재

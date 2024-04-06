@@ -12,29 +12,23 @@ int v[MAX_K + 1], dir[MAX_K + 1], s[MAX_K + 1];//속력,방향,크기
 int dy[4] = { -1,1,0,0 }, dx[4] = { 0,0,1,-1 };
 
 int GetNextY(int y, int id, int &d) {
-    if (!dy[d]) return y;
-    int ny = y;
-    
     for (int i = 1; i <= v[id]; i++) {
-        if (0 > ny + dy[d] || H < ny + dy[d]) { //범위 밖이라면
-            d = (d % 2) ? d - 1 : d + 1;
+        if (0 > y + dy[d] || H <= y + dy[d]) { //범위 밖이라면
+            d = (d % 2 == 1) ? d - 1 : d + 1;
         }
-        ny += dy[d];
+        y += dy[d];
     }
-    return ny;
+    return y;
 }
 
 int GetNextX(int x, int id, int& d) {
-    if (!dx[d]) return x;
-    int nx = x;
-    
     for (int i = 1; i <= v[id]; i++) {
-        if (0 > nx + dx[d] || W < nx + dx[d]) { //범위 밖이라면
-            d = (d % 2) ? d - 1 : d + 1;
+        if (0 > x + dx[d] || W <= x + dx[d]) { //범위 밖이라면
+            d = (d % 2==1) ? d - 1 : d + 1;
         }
-        nx += dx[d];
+        x += dx[d];
     }
-    return nx;
+    return x;
 }
 
 void Move() {

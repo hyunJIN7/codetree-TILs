@@ -12,6 +12,7 @@ int v[MAX_K + 1], dir[MAX_K + 1], s[MAX_K + 1];//속력,방향,크기
 int dy[4] = { -1,1,0,0 }, dx[4] = { 0,0,1,-1 };
 
 int GetNextY(int y, int id, int &d) {
+    if (!!dy[d] || !v[id]) return y;
     for (int i = 1; i <= v[id]; i++) {
         if (0 > y + dy[d] || H <= y + dy[d]) { //범위 밖이라면
             d = (d % 2 == 1) ? d - 1 : d + 1;
@@ -22,6 +23,7 @@ int GetNextY(int y, int id, int &d) {
 }
 
 int GetNextX(int x, int id, int& d) {
+    if (!!dx[d] || !v[id]) return x;
     for (int i = 1; i <= v[id]; i++) {
         if (0 > x + dx[d] || W <= x + dx[d]) { //범위 밖이라면
             d = (d % 2==1) ? d - 1 : d + 1;

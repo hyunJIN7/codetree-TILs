@@ -43,22 +43,22 @@ int FindTarget() {
     vis[cy][cx] = true;
 
     //타켓 
-    int ty = N, tx = N, mind = 987654321;
+    int ty = N, tx = N, min_dist = battery + 10;
 
     while (!q.empty()) {
-        int y, x, cdist;
+        int y, x, cur_dist;
         tie(y, x) = q.front(), q.pop();
-        cdist = dist[y][x];
+        cur_dist = dist[y][x];
 
-        if (battery <= cdist || mind < cdist) break;
+        if (battery <= cur_dist || min_dist < cur_dist) break;
         
         if (grid[y][x] > 0) {
             //사람 있는데 
-            if (cdist < mind) {
-                mind = cdist;
+            if (cur_dist < min_dist) {
+                min_dist = cur_dist;
                 ty = y, tx = x;
             }
-            else if (cdist == mind) {
+            else if (cur_dist == min_dist) {
                 if (make_pair(y, x) < make_pair(ty, tx)) {
                     ty = y, tx = x;
                 }
@@ -69,12 +69,13 @@ int FindTarget() {
             int ny = y + dy[d], nx = x + dx[d];
             if (!CanGo(ny, nx)) continue;
             vis[ny][nx] = true;
-            dist[ny][nx] = cdist + 1;
+            dist[ny][nx] = cur_dist + 1;
             q.push({ ny,nx });
         }
     }
-    if (battery <= mind) return -1;
-    battery -= mind;
+
+    if (battery <= min_dist) return -1;
+    battery -= min_dist;
     return grid[ty][tx];
 }
 
@@ -94,6 +95,8 @@ bool Simulate() {
         int y, x;
         tie(y, x) = q.front(); q.pop();
         if (y == ey[id] && x == ex[id]) break;
+        if (battery < dist[y][x]) break;
+
         for (int d = 0; d < 4; d++) {
             int ny = y + dy[d], nx = x + dx[d];
             if (!CanGo(ny, nx)) continue;
@@ -102,10 +105,8 @@ bool Simulate() {
             q.push({ ny,nx });
         }
     }
-
     int mind = dist[ey[id]][ex[id]];
-    if (battery < mind) 
-        return false;
+    if (!vis[ey[id]][ex[id]] || battery < mind) return false;
     cy = ey[id], cx = ex[id];
     battery += mind;
     grid[ty][tx] = 0;

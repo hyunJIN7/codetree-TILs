@@ -33,7 +33,7 @@ bool TaggerCanGo(int y, int x) {
 tuple<int, int, int> GetNextPos(int y, int x, int dir) {
     for (int i = 0; i < DIR_NUM; i++) {
         int nd = (dir + i) % DIR_NUM;
-        int ny = y + dy[nd] , nx = x + dx[nd];
+        int ny = y + dy[nd], nx = x + dx[nd];
         if (ThiefCanGo(ny, nx))
             return make_tuple(ny, nx, nd);
     }
@@ -47,7 +47,7 @@ void MoveOne(int id) {
                 int ny, nx, nd;
                 tie(ny, nx, nd) = GetNextPos(i, j, grid[i][j].second);
                 grid[i][j].second = nd;
-                
+
                 //swap
                 pii tmp = grid[ny][nx];
                 grid[ny][nx] = grid[i][j];
@@ -59,14 +59,14 @@ void MoveOne(int id) {
 }
 
 void MoveAll() {
-    for (int id = 1; id <= M; id++) 
+    for (int id = 1; id <= M; id++)
         MoveOne(id);
 }
 
 bool End(int y, int x, int dir) {
     for (int dist = 1; dist < N; dist++) {
         int ny = y + dy[dir] * dist, nx = x + dx[dir] * dist;
-        if(TaggerCanGo(ny,nx))
+        if (TaggerCanGo(ny, nx))
             return false;
     }
     return true;//못간다.
@@ -93,13 +93,13 @@ void GetMaxScore(int y, int x, int dir, int score) {
         int new_score, new_dir;
         tie(new_score, new_dir) = grid[ny][nx];
         grid[ny][nx] = TAGGER;
-        grid[y][x] == EMPTY;
+        grid[y][x] = EMPTY;
 
         MoveAll();
         GetMaxScore(ny, nx, new_dir, new_score + score);
 
-        for (int i = 0; i < N; i++) 
-            for (int j = 0; j < N; j++) 
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
                 grid[i][j] = tmp_grid[i][j];
     }
 }
@@ -116,7 +116,7 @@ int main() {
     }
 
     //태거 초기화
-    int init_score,init_dir;
+    int init_score, init_dir;
     tie(init_score, init_dir) = grid[0][0];
     grid[0][0] = TAGGER;
 

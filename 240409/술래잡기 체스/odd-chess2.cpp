@@ -37,7 +37,7 @@ tuple<int, int, int> GetNextPos(int y, int x, int dir) {
         if (ThiefCanGo(ny, nx))
             return make_tuple(ny, nx, nd);
     }
-    return make_tuple( y,x, dir);
+    return make_tuple(y, x, dir);
 }
 
 void MoveOne(int id) {
@@ -45,9 +45,9 @@ void MoveOne(int id) {
         for (int j = 0; j < N; j++) {
             if (id == grid[i][j].first) {
                 int ny, nx, nd;
-                //방향도 알아서 바꿔놓음.
                 tie(ny, nx, nd) = GetNextPos(i, j, grid[i][j].second);
                 grid[i][j].second = nd;
+                
                 //swap
                 pii tmp = grid[ny][nx];
                 grid[ny][nx] = grid[i][j];
@@ -74,18 +74,16 @@ bool End(int y, int x, int dir) {
 
 void GetMaxScore(int y, int x, int dir, int score) {
     //현 술래 위치 방향과 그 때의 점수
-
     if (End(y, x, dir)) {
         //현 방향으로 갈 수 있는 곳 없음.
         ans = max(ans, score);
         return; //끝
     }
 
-    for (int i = 1; i < N; i++) {
-        int ny = y + dy[dir] * i, nx = x + dx[dir] * i;
+    for (int dist = 1; dist < N; dist++) {
+        int ny = y + dy[dir] * dist, nx = x + dx[dir] * dist;
         if (!TaggerCanGo(ny, nx)) continue;
 
-        //술래 움직이기 , 이거 때문에 틀렸나????!?!?!? 
         pii tmp_grid[MAX_N][MAX_N];
         for (int i = 0; i < N; i++)
             for (int j = 0; j < N; j++)

@@ -51,15 +51,18 @@ void FindTarget() {
             candi.push_back({ grid_skill[i][j] , grid_time[i][j],i,j });
         }
     }
+    if (candi.size() <= 1) return;//중요!
     sort(candi.begin(), candi.end(), cmp);
 
-    play[candi[0].y][candi[0].x] = true;
-    grid_time[candi[0].y][candi[0].x] = turn;
+    int y = candi[0].y, x = candi[0].x;
+    play[y][x] = true;
+    grid_time[y][x] = turn;
+    grid_skill[y][x] += (N + M);
 }
 
 bool LaserAttack() {
     int sy = candi[0].y, sx = candi[0].x;
-    int ey = candi.back().y, ex = candi.back().x;
+    int ey = candi[candi.size()-1].y, ex = candi[candi.size() - 1].x;
 
     queue<pair<int, int> > q;
     q.push({ sy,sx });
@@ -84,12 +87,13 @@ bool LaserAttack() {
 
     if (!vis[ey][ex]) return false; // 길 못찾음
 
-    int skill = (grid_skill[sy][sx] += (N + M));
+    int skill = grid_skill[sy][sx];
     grid_skill[ey][ex] -= skill;
     skill /= 2;
     play[ey][ex] = true;
+
     int ny = back_y[ey][ex], nx = back_x[ey][ex]; // 다음 위치
-    while (ny != sy || nx != sx) {
+    while (!(ny == sy && nx == sx)) {
         grid_skill[ny][nx] -= skill;
         play[ny][nx] = true;
         ey = ny, ex = nx;
@@ -100,13 +104,13 @@ bool LaserAttack() {
 
 void BombAttack() {
     int sy = candi[0].y, sx = candi[0].x;
-    int ey = candi.back().y, ex = candi.back().x;
+    int ey = candi[candi.size() - 1].y, ex = candi[candi.size() - 1].x;
 
-    int skill = (grid_skill[sy][sx] += (N + M));
+    int skill = grid_skill[sy][sx];
     grid_skill[ey][ex] -= skill;
-    skill /= 2;
     play[ey][ex] = true;
-
+    skill /= 2;
+   
     for (int d = 0; d < 8; d++) {
         int ny = (ey + dy[d] + N) % N;
         int nx = (ex + dx[d] + M) % M;
@@ -119,27 +123,23 @@ void BombAttack() {
 }
 void Upgrade() {
     for (int i = 0; i < N; i++) 
-        for (int j = 0; j < M; j++) 
-            if (!play[i][j] && grid_skill[i][j] > 0) 
-                grid_skill[i][j]++;  
+        for (int j = 0; j < M; j++) {
+            if (play[i][j] || grid_skill[i][j] <=0 ) continue;
+            grid_skill[i][j]++;
+        }
+            
 }
 
 void Simulate() {
-    while (turn < K) {
-        //init
+    while (K--) {
         init();
-        //공격자 선정
         FindTarget();
         if (candi.size() <= 1) return;
 
-        //굳이 여기서 확인하는건 
-        // 포탑 정비해도 어차피 가담한 애들은 안더해서 때문에 안더해져 
-        //공격
         if (!LaserAttack()) {
             BombAttack();
         }
 
-        //ENd 확인 
         //포탑 정비
         Upgrade();
     }

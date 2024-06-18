@@ -2,7 +2,7 @@
 #include <cstring>
 #include <vector>
 #include <queue>
-#define MAX_N 71
+#define MAX_N 72
 #define DIR_NUM 4
 using namespace std;
 
@@ -31,11 +31,7 @@ bool CanGo(int y, int x, vector<vector<int> > &candi) {
         int ny = y + p[0];
         int nx = x + p[1];
         if ( !( ny <= N && 1 <= nx && nx <= M) || grid[ny][nx])
-        //if (!InRange(ny,nx) || grid[ny][nx])
             return false;
-        //if (!InRange(y+p[0], x+p[1]) || grid[y+p[0]][x + p[1]])
-        //    return false;
-        // 범위 밖이거나 이미 놓여있다면 못감
     }
     return true;
 }
@@ -64,20 +60,27 @@ Pos FindNextPos(Pos pos) {
 }
 
 int Simulate(int x, int d) {
-    int y = 0;
-    Pos p = FindNextPos({ 0, x, d });
 
+    // step 1. 남서동 이동
+    int y = 0;
+    Pos p = FindNextPos({ -1, x, d });
+
+    //이동 위치가 격자 벗어나면 새로 시작 
     if (!InSide(p.y, p.x)) {
         memset(grid, 0, sizeof(grid));
         return 0;
     }
-    //범위 내에 가능 
+    //골렘 최종 위치 
     y = p.y, x = p.x, d = p.d;
 
-    int ret = y + 1; // 현재 골렘에서 가장 큰 y
+
+    //step 3. 정령 이동 
+    //출구 위치에서 시작해
+    // 이미 활성화된 곳으로만 이동 
+    int ret = y + 1;
     bool vis[MAX_N][MAX_N] = { 0, };
     queue<pair<int, int> > q;
-    q.push({ y+ dy[d],x+dx[d] }); // 출구 방향
+    q.push({ y + dy[d],x + dx[d] }); // 출구 방향
     while (!q.empty()) {
         pair<int, int> cp = q.front();
         q.pop();
@@ -92,8 +95,8 @@ int Simulate(int x, int d) {
         }
     }
 
-    //마지막에 골렘 조각 활성화 
-    //출구랑 연결된 다른 조각만 보기 위해 나중에 활성화 함.
+    //step 2. 골렘 활성화 
+    // 본인 골렘 이외 골렘만 보기 위해 뒤로 뺌.
     for (vector<int> np : frame) {
         //int ny = y + np[0];
         //int nx = x + np[1];

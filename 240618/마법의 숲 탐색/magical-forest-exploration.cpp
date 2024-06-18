@@ -15,7 +15,7 @@ vector<vector<int> > frame = { {0,0},{1,0},{0,-1},{0,1},{-1,0} };
 
 //이동 위해 확인해야할 위치
 vector<vector<int> > south = { {1,0},{2,0},{1,-1},{1,1} };
-vector<vector<int> > west = { {2,-1},{1,-2},{-1,0},{0,-2},{-1,-1} };
+vector<vector<int> > west = { {2,-1},{1,-2},{-1,0},{1,0},{0,-2},{-1,-1} };
 vector<vector<int> > east = { {2,1},{1,2},{1,1},{1,0},{0,2}, {-1,1} };
 
 int dy[DIR_NUM] = { -1,0,1,0 }, dx[DIR_NUM] = { 0,1,0,-1 };
@@ -33,7 +33,7 @@ bool CanGo(int y, int x, vector<vector<int> > &candi) {
         int ny = y + p[0];
         int nx = x + p[1];
         if (ny < 0) continue;
-        if ( !( ny <= N && 1 <= nx && nx <= M) || grid[ny][nx])
+        if ( !(ny <= N && 1 <= nx && nx <= M) || grid[ny][nx])
             return false;
     }
     return true;
@@ -82,8 +82,8 @@ int MoveFairy(int y, int x, int d) {
             if (!InRange(ny, nx) || vis[ny][nx] || !grid[ny][nx])
                 continue;
             if ( grid[ny][nx] == grid[cp.first][cp.second]|| 
-                grid[cp.first][cp.second] == GATE || 
-                grid[ny][nx] == GATE) {
+               ( grid[cp.first][cp.second] == GATE && 
+                   grid[ny][nx] != grid[cp.first][cp.second]) ){
                 vis[ny][nx] = true;
                 q.push({ ny,nx });
             }

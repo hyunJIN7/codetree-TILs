@@ -32,6 +32,7 @@ bool CanGo(int y, int x, vector<vector<int> > &candi) {
     for (vector<int> p : candi) {
         int ny = y + p[0];
         int nx = x + p[1];
+        if (ny < 0) continue;
         if ( !( ny <= N && 1 <= nx && nx <= M) || grid[ny][nx])
             return false;
     }
@@ -80,7 +81,7 @@ int MoveFairy(int y, int x, int d) {
             //갈 수 있는 칸 중에서 
             if (!InRange(ny, nx) || vis[ny][nx] || !grid[ny][nx])
                 continue;
-            if ( (grid[ny][nx] == grid[cp.first][cp.second])|| 
+            if ( grid[ny][nx] == grid[cp.first][cp.second]|| 
                 grid[cp.first][cp.second] == GATE || 
                 grid[ny][nx] == GATE) {
                 vis[ny][nx] = true;
@@ -95,7 +96,7 @@ int Simulate(int x, int d, int id) {
 
     // step 1. 남서동 이동
     int y = 0;
-    Pos p = FindNextPos({ -1, x, d });
+    Pos p = FindNextPos({ 0, x, d });
 
     //이동 위치가 격자 벗어나면 새로 시작 
     if (!InSide(p.y, p.x)) {

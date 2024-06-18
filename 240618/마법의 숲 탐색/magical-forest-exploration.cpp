@@ -69,6 +69,7 @@ int MoveFairy(int y, int x, int d) {
     bool vis[MAX_N][MAX_N] = { 0, };
     queue<pair<int, int> > q;
     q.push({ y + dy[d],x + dx[d] }); // 출구 방향
+    vis[y + dy[d]][x + dx[d]] = true;
 
     while (!q.empty()) {
         pair<int, int> cp = q.front(); q.pop();
@@ -76,8 +77,12 @@ int MoveFairy(int y, int x, int d) {
 
         for (int d = 0; d < DIR_NUM; d++) {
             int ny = cp.first + dy[d], nx = cp.second + dx[d];
-            if (InRange(ny, nx) && !vis[ny][nx] && 
-                (grid[ny][nx] && grid[ny][nx] == grid[cp.first][cp.second] || grid[ny][nx] == GATE )) {
+            //갈 수 있는 칸 중에서 
+            if (!InRange(ny, nx) || vis[ny][nx] || !grid[ny][nx])
+                continue;
+            if ( (grid[ny][nx] == grid[cp.first][cp.second])|| 
+                grid[cp.first][cp.second] == GATE || 
+                grid[ny][nx] == GATE) {
                 vis[ny][nx] = true;
                 q.push({ ny,nx });
             }
@@ -100,34 +105,20 @@ int Simulate(int x, int d, int id) {
     //골렘 최종 위치 
     y = p.y, x = p.x, d = p.d;
 
-
-    //step 3. 정령 이동 
-    //출구 위치에서 시작해
-    // 이미 활성화된 곳으로만 이동 
+    grid[y + dy[d]][x + dx[d]] = GATE;
     int ret = MoveFairy(y, x, d);
-    //bool vis[MAX_N][MAX_N] = { 0, };
-    //queue<pair<int, int> > q;
-    //q.push({ y + dy[d],x + dx[d] }); // 출구 방향
-    //while (!q.empty()) {
-    //    pair<int, int> cp = q.front();
-    //    q.pop();
-    //    ret = max(ret, cp.first);
 
-    //    for (int d = 0; d < DIR_NUM; d++) {
-    //        int ny = cp.first + dy[d], nx = cp.second + dx[d];
-    //        if (InRange(ny, nx) && grid[ny][nx] && !vis[ny][nx]) {
-    //            vis[ny][nx] = true;
-    //            q.push({ ny,nx });
-    //        }
-    //    }
-    //}
 
     //step 2. 골렘 활성화 
-    // 본인 골렘 이외 골렘만 보기 위해 뒤로 뺌.
+   // 본인 골렘 이외 골렘만 보기 위해 뒤로 뺌.
     for (vector<int> np : frame) {
         grid[y + np[0]][x + np[1]] = id;
     }
     grid[y + dy[d]][x + dx[d]] = GATE;
+
+    //step 3. 정령 이동 
+    //출구 위치에서 시작해
+    // 이미 활성화된 곳으로만 이동 
     return ret;
 }
 

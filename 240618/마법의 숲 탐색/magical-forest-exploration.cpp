@@ -2,18 +2,20 @@
 #include <cstring>
 #include <vector>
 #include <queue>
-#define MAX_N 72
+#define MAX_N 73
 #define DIR_NUM 4
+#define GATE -1
 using namespace std;
 
-bool grid[MAX_N][MAX_N];
+int grid[MAX_N][MAX_N];
+//bool gate[MAX_N][MAX_N];
 int N, M;
 
 vector<vector<int> > frame = { {0,0},{1,0},{0,-1},{0,1},{-1,0} };
 
 //이동 위해 확인해야할 위치
 vector<vector<int> > south = { {1,0},{2,0},{1,-1},{1,1} };
-vector<vector<int> > west = { {2,-1},{1,-2},{1,-1},{-1,0},{0,-2},{-1,-1} };
+vector<vector<int> > west = { {2,-1},{1,-2},{-1,0},{0,-2},{-1,-1} };
 vector<vector<int> > east = { {2,1},{1,2},{1,1},{1,0},{0,2}, {-1,1} };
 
 int dy[DIR_NUM] = { -1,0,1,0 }, dx[DIR_NUM] = { 0,1,0,-1 };
@@ -59,7 +61,32 @@ Pos FindNextPos(Pos pos) {
     return pos;
 }
 
-int Simulate(int x, int d) {
+int MoveFairy(int y, int x, int d) {
+    //step 3. 정령 이동 
+    //출구 위치에서 시작해
+    // 이미 활성화된 곳으로만 이동 
+    int ret = y + 1;
+    bool vis[MAX_N][MAX_N] = { 0, };
+    queue<pair<int, int> > q;
+    q.push({ y + dy[d],x + dx[d] }); // 출구 방향
+
+    while (!q.empty()) {
+        pair<int, int> cp = q.front(); q.pop();
+        ret = max(ret, cp.first);
+
+        for (int d = 0; d < DIR_NUM; d++) {
+            int ny = cp.first + dy[d], nx = cp.second + dx[d];
+            if (InRange(ny, nx) && !vis[ny][nx] && 
+                (grid[ny][nx] && grid[ny][nx] == grid[cp.first][cp.second] || grid[ny][nx] == GATE )) {
+                vis[ny][nx] = true;
+                q.push({ ny,nx });
+            }
+        }
+    }
+    return ret;
+}
+
+int Simulate(int x, int d, int id) {
 
     // step 1. 남서동 이동
     int y = 0;
@@ -77,31 +104,30 @@ int Simulate(int x, int d) {
     //step 3. 정령 이동 
     //출구 위치에서 시작해
     // 이미 활성화된 곳으로만 이동 
-    int ret = y + 1;
-    bool vis[MAX_N][MAX_N] = { 0, };
-    queue<pair<int, int> > q;
-    q.push({ y + dy[d],x + dx[d] }); // 출구 방향
-    while (!q.empty()) {
-        pair<int, int> cp = q.front();
-        q.pop();
-        ret = max(ret, cp.first);
+    int ret = MoveFairy(y, x, d);
+    //bool vis[MAX_N][MAX_N] = { 0, };
+    //queue<pair<int, int> > q;
+    //q.push({ y + dy[d],x + dx[d] }); // 출구 방향
+    //while (!q.empty()) {
+    //    pair<int, int> cp = q.front();
+    //    q.pop();
+    //    ret = max(ret, cp.first);
 
-        for (int d = 0; d < DIR_NUM; d++) {
-            int ny = cp.first + dy[d], nx = cp.second + dx[d];
-            if (InRange(ny, nx) && grid[ny][nx] && !vis[ny][nx]) {
-                vis[ny][nx] = true;
-                q.push({ ny,nx });
-            }
-        }
-    }
+    //    for (int d = 0; d < DIR_NUM; d++) {
+    //        int ny = cp.first + dy[d], nx = cp.second + dx[d];
+    //        if (InRange(ny, nx) && grid[ny][nx] && !vis[ny][nx]) {
+    //            vis[ny][nx] = true;
+    //            q.push({ ny,nx });
+    //        }
+    //    }
+    //}
 
     //step 2. 골렘 활성화 
     // 본인 골렘 이외 골렘만 보기 위해 뒤로 뺌.
     for (vector<int> np : frame) {
-        //int ny = y + np[0];
-        //int nx = x + np[1];
-        grid[y + np[0]][x + np[1]] = true;
+        grid[y + np[0]][x + np[1]] = id;
     }
+    grid[y + dy[d]][x + dx[d]] = GATE;
     return ret;
 }
 
@@ -110,10 +136,11 @@ int main() {
     int K;
     cin >> N >> M >> K;
     int ans = 0;
+    int id = 1;
     while (K--) {
         int c, d;
         cin >> c >> d;
-        ans += Simulate(c, d);
+        ans += Simulate(c, d,id++);
     }
     cout << ans;
     return 0;

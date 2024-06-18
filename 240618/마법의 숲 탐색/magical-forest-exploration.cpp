@@ -30,7 +30,7 @@ bool CanGo(int y, int x, vector<vector<int> > &candi) {
     for (vector<int> p : candi) {
         int ny = y + p[0];
         int nx = x + p[1];
-        if ( !(0 <= ny && ny <= N && 1 <= nx && nx <= M) || grid[ny][nx])
+        if ( !( ny <= N && 1 <= nx && nx <= M) || grid[ny][nx])
         //if (!InRange(ny,nx) || grid[ny][nx])
             return false;
         //if (!InRange(y+p[0], x+p[1]) || grid[y+p[0]][x + p[1]])
